@@ -536,3 +536,26 @@ http://localhost:5000
 * AWS Deployment
 * Kubernetes Scaling
 * Monitoring with LangSmith
+
+---
+## ⚠ Disclaimer
+
+This project is intended for educational and research purposes.
+
+Generated code should be reviewed, tested, and validated before production deployment.
+
+---
+
+## 👨‍💻 Developer
+
+**Darshan Kamate**
+
+📧 Email: [kamatedarshan5@gmail.com](mailto:kamatedarshan5@gmail.com)
+
+📱 Phone: +91 9353675710
+
+LinkedIn: https://www.linkedin.com/in/darshankamate
+
+---
+
+### ⭐ If you find this project useful, consider giving it a star.
