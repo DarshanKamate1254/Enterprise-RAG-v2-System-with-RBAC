@@ -1,0 +1,38 @@
+# ── Core framework ────────────────────────────────────────────────────────────
+flask>=3.0.0
+pydantic-settings>=2.0.0
+
+# ── LlamaIndex core ───────────────────────────────────────────────────────────
+llama-index-core>=0.10.0
+llama-index-embeddings-huggingface>=0.2.0
+llama-index-vector-stores-chroma>=0.1.0
+
+# ── LlamaIndex LLM backends ───────────────────────────────────────────────────
+llama-index-llms-openai>=0.1.0
+llama-index-llms-huggingface-api>=0.1.0
+
+# ── RAG v2: Hybrid retrieval ─────────────────────────────────────────────────
+llama-index-retrievers-bm25>=0.1.0     # BM25 sparse retriever
+rank-bm25>=0.2.2                       # BM25 backend
+
+# ── RAG v2: Cross-encoder reranking ──────────────────────────────────────────
+llama-index-postprocessor-flag-embedding-reranker>=0.1.0
+sentence-transformers>=2.7.0           # cross-encoder/ms-marco-MiniLM-L-6-v2
+
+# ── Vector store ──────────────────────────────────────────────────────────────
+chromadb>=0.5.0
+
+# ── Embeddings / ML runtime ───────────────────────────────────────────────────
+torch>=2.0.0
+
+# ── Data processing ───────────────────────────────────────────────────────────
+pandas>=2.0.0
+openpyxl>=3.1.0
+xlrd>=2.0.1
+
+# ── RAGAS evaluation ──────────────────────────────────────────────────────────
+ragas>=0.1.0
+datasets>=2.19.0
+
+# ── OpenAI (required for openai LLM provider and RAGAS judge) ────────────────
+openai>=1.30.0

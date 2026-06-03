@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Company RAG – Login</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+    .card {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 40px 36px;
+      width: 380px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .logo-icon {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, #4f8ef7, #7c3aed);
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      margin-bottom: 12px;
+    }
+    h1 { color: #fff; font-size: 22px; font-weight: 600; text-align: center; }
+    p.subtitle { color: #94a3b8; font-size: 13px; text-align: center; margin-top: 4px; }
+
+    .form-group { margin-top: 20px; }
+    label { display: block; color: #94a3b8; font-size: 12px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+    input {
+      width: 100%; padding: 11px 14px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      color: #fff; font-size: 14px;
+      outline: none; transition: border-color .2s;
+    }
+    input:focus { border-color: #4f8ef7; }
+    input::placeholder { color: #475569; }
+
+    .btn {
+      width: 100%; margin-top: 26px;
+      padding: 12px;
+      background: linear-gradient(135deg, #4f8ef7, #7c3aed);
+      border: none; border-radius: 8px;
+      color: #fff; font-size: 15px; font-weight: 600;
+      cursor: pointer; transition: opacity .2s;
+    }
+    .btn:hover { opacity: .85; }
+
+    .error {
+      margin-top: 16px; padding: 10px 14px;
+      background: rgba(239,68,68,0.15);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 8px;
+      color: #fca5a5; font-size: 13px; text-align: center;
+    }
+
+    .hint {
+      margin-top: 20px;
+      padding: 12px 14px;
+      background: rgba(79,142,247,0.08);
+      border: 1px solid rgba(79,142,247,0.2);
+      border-radius: 8px;
+    }
+    .hint p { color: #7dd3fc; font-size: 12px; line-height: 1.6; }
+    .hint strong { color: #93c5fd; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <div class="logo-icon">🔐</div>
+      <h1>Company RAG</h1>
+      <p class="subtitle">Secure internal knowledge assistant</p>
+    </div>
+
+    <form method="post">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text"
+               placeholder="e.g. hr_user" autocomplete="username" required />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password"
+               placeholder="••••••••" autocomplete="current-password" required />
+      </div>
+      <button class="btn" type="submit">Sign In</button>
+    </form>
+
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <div class="hint">
+      <p><strong>Demo credentials:</strong><br>
+        hr_user / hr_pass123<br>
+        alice / finance_pass<br>
+        bob / marketing_pass<br>
+        dave / engineering_pass<br>
+        ceo / ceo_pass
+      </p>
+    </div>
+  </div>
+</body>
+</html>

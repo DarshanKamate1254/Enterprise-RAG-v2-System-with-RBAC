@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Company RAG v2 – Chat</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      display: flex; flex-direction: column;
+      background: #0f172a;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: #e2e8f0;
+    }
+
+    /* ── Header ── */
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 24px;
+      background: rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .brand { font-size: 17px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+    .brand-tag {
+      font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px;
+      background: linear-gradient(135deg,#6366f1,#a855f7); color: #fff; letter-spacing:.04em;
+    }
+    .user-info { display: flex; align-items: center; gap: 12px; font-size: 13px; color: #94a3b8; }
+    .badge {
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      background: rgba(79,142,247,0.2); color: #93c5fd;
+      border: 1px solid rgba(79,142,247,0.3);
+    }
+    .logout { color: #f87171; text-decoration: none; font-size: 13px; }
+    .logout:hover { text-decoration: underline; }
+
+    /* ── Layout ── */
+    .layout { display: flex; flex: 1; overflow: hidden; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 220px; min-width: 220px;
+      background: rgba(255,255,255,0.03);
+      border-right: 1px solid rgba(255,255,255,0.07);
+      padding: 20px 14px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .sidebar h3 { font-size: 11px; font-weight: 700; text-transform: uppercase;
+                  letter-spacing: .06em; color: #475569; margin-bottom: 8px; }
+    .ns-btn {
+      padding: 9px 12px; border-radius: 8px;
+      background: transparent; border: 1px solid rgba(255,255,255,0.08);
+      color: #94a3b8; font-size: 13px; text-align: left; cursor: pointer;
+      transition: all .15s;
+    }
+    .ns-btn:hover { background: rgba(255,255,255,0.06); color: #e2e8f0; }
+    .ns-btn.active {
+      background: rgba(79,142,247,0.15); color: #93c5fd;
+      border-color: rgba(79,142,247,0.4);
+    }
+
+    /* ── RAG v2 badges in sidebar ── */
+    .rag-badges { margin-top: auto; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.07); }
+    .rag-badges h3 { font-size: 11px; font-weight: 700; text-transform: uppercase;
+                     letter-spacing: .06em; color: #475569; margin-bottom: 8px; }
+    .rag-badge {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; color: #64748b; padding: 4px 0;
+    }
+    .rag-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; flex-shrink:0; }
+
+    /* ── Chat area ── */
+    .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .messages { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+
+    .msg { max-width: 760px; }
+    .msg.user { align-self: flex-end; }
+    .msg.assistant { align-self: flex-start; width: 100%; max-width: 760px; }
+
+    .bubble {
+      padding: 12px 16px; border-radius: 12px;
+      font-size: 14px; line-height: 1.65;
+    }
+    .msg.user .bubble {
+      background: linear-gradient(135deg, #4f8ef7, #7c3aed);
+      color: #fff; border-bottom-right-radius: 4px;
+    }
+    .msg.assistant .bubble {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #e2e8f0; border-bottom-left-radius: 4px;
+    }
+
+    /* ── Retrieval info panel ── */
+    .retrieval-panel {
+      margin-top: 10px;
+      background: rgba(99,102,241,0.06);
+      border: 1px solid rgba(99,102,241,0.2);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .retrieval-toggle {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 14px; cursor: pointer;
+      font-size: 12px; color: #818cf8; font-weight: 600;
+      user-select: none;
+    }
+    .retrieval-toggle:hover { background: rgba(99,102,241,0.08); }
+    .retrieval-body { padding: 0 14px 12px; display: none; }
+    .retrieval-body.open { display: block; }
+
+    .pipeline-steps {
+      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; padding-top: 10px;
+    }
+    .step-tag {
+      font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px;
+      text-transform: uppercase; letter-spacing: .04em;
+    }
+    .step-tag.active { background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
+    .step-tag.inactive { background: rgba(100,116,139,0.15); color: #475569; border: 1px solid rgba(100,116,139,0.2); }
+
+    .sources-list { display: flex; flex-direction: column; gap: 8px; }
+    .source-item {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+    .source-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .source-filename { color: #93c5fd; font-weight: 600; }
+    .source-score {
+      font-size: 11px; padding: 1px 6px; border-radius: 4px;
+      background: rgba(34,197,94,0.1); color: #86efac;
+      border: 1px solid rgba(34,197,94,0.2);
+    }
+    .source-ns { color: #64748b; font-size: 11px; margin-bottom: 4px; }
+    .source-snippet { color: #94a3b8; line-height: 1.5; }
+    .redacted-badge {
+      margin-top: 8px; font-size: 11px; padding: 3px 8px; border-radius: 4px;
+      background: rgba(239,68,68,0.1); color: #fca5a5;
+      border: 1px solid rgba(239,68,68,0.2); display: inline-block;
+    }
+
+    /* ── Input bar ── */
+    .input-bar {
+      padding: 16px 24px;
+      background: rgba(255,255,255,0.03);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      display: flex; gap: 12px; align-items: flex-end;
+    }
+    .input-wrap { flex: 1; position: relative; }
+    textarea {
+      width: 100%; resize: none; min-height: 46px; max-height: 160px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      color: #e2e8f0; font-size: 14px; font-family: inherit;
+      padding: 12px 16px; outline: none; transition: border-color .2s;
+    }
+    textarea:focus { border-color: rgba(99,102,241,0.6); }
+    .send-btn {
+      padding: 12px 22px; border-radius: 10px;
+      background: linear-gradient(135deg,#6366f1,#a855f7);
+      color: #fff; font-weight: 700; font-size: 14px;
+      border: none; cursor: pointer; transition: opacity .15s; white-space: nowrap;
+    }
+    .send-btn:hover { opacity: .85; }
+    .send-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* ── Typing indicator ── */
+    .typing { display: flex; gap: 4px; align-items: center; padding: 14px 16px; }
+    .typing span { width: 7px; height: 7px; border-radius: 50%; background: #6366f1;
+                   animation: bounce .8s infinite; }
+    .typing span:nth-child(2) { animation-delay: .15s; }
+    .typing span:nth-child(3) { animation-delay: .3s; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    🔍 Company RAG
+    <span class="brand-tag">v2</span>
+  </div>
+  <div class="user-info">
+    <span>{{ user_name }}</span>
+    <span class="badge">{{ user_role }}</span>
+    <a href="/logout" class="logout">Sign out</a>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h3>Namespaces</h3>
+    {% for ns in allowed_namespaces %}
+    <button class="ns-btn {% if ns == default_namespace %}active{% endif %}"
+            onclick="selectNs(this, '{{ ns }}')">
+      {{ ns | capitalize }}
+    </button>
+    {% endfor %}
+
+    <div class="rag-badges">
+      <h3>RAG v2 Pipeline</h3>
+      <div class="rag-badge"><span class="dot"></span>Hybrid Search (BM25 + Vector)</div>
+      <div class="rag-badge"><span class="dot"></span>Parent-Child Chunking</div>
+      <div class="rag-badge"><span class="dot"></span>HyDE Query Enrichment</div>
+      <div class="rag-badge"><span class="dot"></span>Multi-Query Expansion</div>
+      <div class="rag-badge"><span class="dot"></span>Cross-Encoder Reranking</div>
+      <div class="rag-badge"><span class="dot"></span>RBAC Namespace Isolation</div>
+    </div>
+  </aside>
+
+  <!-- Chat -->
+  <div class="chat-area">
+    <div class="messages" id="messages">
+      <div class="msg assistant">
+        <div class="bubble">
+          👋 Hello <strong>{{ user_name }}</strong>! I'm your RAG v2 assistant powered by hybrid search and cross-encoder reranking.
+          <br><br>Select a namespace and ask me anything about your company data.
+        </div>
+      </div>
+    </div>
+
+    <div class="input-bar">
+      <div class="input-wrap">
+        <textarea id="input" rows="1" placeholder="Ask a question…"></textarea>
+      </div>
+      <button class="send-btn" id="sendBtn" onclick="send()">Send ↑</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentNs = "{{ default_namespace }}";
+
+  function selectNs(btn, ns) {
+    document.querySelectorAll(".ns-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentNs = ns;
+  }
+
+  const input = document.getElementById("input");
+  input.addEventListener("input", () => {
+    input.style.height = "auto";
+    input.style.height = Math.min(input.scrollHeight, 160) + "px";
+  });
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); }
+  });
+
+  function addMsg(role, html) {
+    const msgs = document.getElementById("messages");
+    const div = document.createElement("div");
+    div.className = `msg ${role}`;
+    div.innerHTML = `<div class="bubble">${html}</div>`;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+    return div;
+  }
+
+  function buildRetrievalPanel(data) {
+    const info = data.retrieval_info || {};
+    const steps = [
+      { label: "HyDE",       active: info.hyde_used },
+      { label: "QueryExp",   active: info.query_expansion_used },
+      { label: "Hybrid",     active: info.hybrid_used !== false },
+      { label: "AutoMerge",  active: info.auto_merging_used !== false },
+      { label: "Reranker",   active: info.reranker_used },
+    ];
+
+    const stepBadges = steps.map(s =>
+      `<span class="step-tag ${s.active ? 'active' : 'inactive'}">${s.label}</span>`
+    ).join("");
+
+    const sources = (data.source_documents || []).map(src => {
+      const score = src.score !== null && src.score !== undefined
+        ? `<span class="source-score">score: ${src.score}</span>` : "";
+      return `
+        <div class="source-item">
+          <div class="source-header">
+            <span class="source-filename">📄 ${src.filename || 'unknown'}</span>
+            ${score}
+          </div>
+          <div class="source-ns">namespace: ${src.namespace || '—'}</div>
+          <div class="source-snippet">${escHtml(src.snippet || "")}</div>
+        </div>`;
+    }).join("");
+
+    const redBadge = data.redacted
+      ? `<div class="redacted-badge">⚠ Sensitive content redacted</div>` : "";
+
+    return `
+      <div class="retrieval-panel">
+        <div class="retrieval-toggle" onclick="togglePanel(this)">
+          🔬 Retrieval details (${(data.source_documents||[]).length} sources)
+          <span>▸</span>
+        </div>
+        <div class="retrieval-body">
+          <div class="pipeline-steps">${stepBadges}</div>
+          <div class="sources-list">${sources}</div>
+          ${redBadge}
+        </div>
+      </div>`;
+  }
+
+  function togglePanel(toggle) {
+    const body = toggle.nextElementSibling;
+    const arrow = toggle.querySelector("span");
+    body.classList.toggle("open");
+    arrow.textContent = body.classList.contains("open") ? "▾" : "▸";
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+
+  async function send() {
+    const q = input.value.trim();
+    if (!q) return;
+    input.value = ""; input.style.height = "auto";
+    document.getElementById("sendBtn").disabled = true;
+
+    addMsg("user", escHtml(q));
+
+    // Typing indicator
+    const msgs = document.getElementById("messages");
+    const typingDiv = document.createElement("div");
+    typingDiv.className = "msg assistant";
+    typingDiv.innerHTML = `<div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+    msgs.appendChild(typingDiv);
+    msgs.scrollTop = msgs.scrollHeight;
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: q, namespace: currentNs }),
+      });
+      const data = await res.json();
+      msgs.removeChild(typingDiv);
+
+      if (data.error) {
+        addMsg("assistant", `<span style="color:#f87171">⚠ ${escHtml(data.error)}</span>`);
+      } else {
+        const answerHtml = escHtml(data.answer).replace(/\n/g, "<br>");
+        const msgDiv = document.createElement("div");
+        msgDiv.className = "msg assistant";
+        msgDiv.innerHTML = `
+          <div class="bubble">${answerHtml}</div>
+          ${buildRetrievalPanel(data)}
+        `;
+        msgs.appendChild(msgDiv);
+        msgs.scrollTop = msgs.scrollHeight;
+      }
+    } catch (err) {
+      msgs.removeChild(typingDiv);
+      addMsg("assistant", `<span style="color:#f87171">Network error: ${escHtml(String(err))}</span>`);
+    }
+
+    document.getElementById("sendBtn").disabled = false;
+    input.focus();
+  }
+</script>
+</body>
+</html>

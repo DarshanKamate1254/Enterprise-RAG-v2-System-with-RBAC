@@ -1,0 +1,13 @@
+.env
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+db/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+eval/ragas_results.json
+eval/ragas_results.csv
