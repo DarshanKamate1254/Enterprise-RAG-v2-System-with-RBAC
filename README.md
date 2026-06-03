@@ -1,4 +1,4 @@
-# 🧠 Enterprise RAG v2 System with RBAC
+# 🧠 Enterprise RAG System with RBAC
 
 A production-ready Retrieval-Augmented Generation (RAG) platform built using Flask, LlamaIndex, ChromaDB, OpenAI, and advanced RAG v2 retrieval techniques.
 
