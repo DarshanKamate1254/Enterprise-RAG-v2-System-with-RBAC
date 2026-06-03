@@ -126,11 +126,19 @@ rag_llamaindex_v2/
 ├── main.py
 └── .env
 ```
-![Project Demo](/rag_v2_1.png)
-(/rag_v2_2.png)
-(/rag_v2_3.png)
-A production-ready Retrieval-Augmented Generation (RAG) platform...
+## 📸 Project Screenshots
 
+### Login & Authentication
+
+![Login Page](rag_v2_1.png)
+
+### Enterprise Chat Interface
+
+![Chat Interface](rag_v2_2.png)
+
+### Retrieval Diagnostics
+
+![Retrieval Diagnostics](rag_v2_3.png)
 
 ---
 
