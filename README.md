@@ -127,8 +127,8 @@ rag_llamaindex_v2/
 └── .env
 ```
 ![Project Demo](/rag_v2_1.png)
-(images/rag_v2_2.png)
-(images/rag_v2_3.png)
+(/rag_v2_2.png)
+(/rag_v2_3.png)
 A production-ready Retrieval-Augmented Generation (RAG) platform...
 
 
