@@ -1,561 +1,176 @@
-# 🧠 Enterprise RAG System with RBAC
+# Enterprise RAG Platform with RBAC
 
-A production-ready Retrieval-Augmented Generation (RAG) platform built using Flask, LlamaIndex, ChromaDB, OpenAI, and advanced RAG v2 retrieval techniques.
+Enterprise RAG Platform is a production-focused Retrieval-Augmented Generation system designed for secure knowledge retrieval across multiple departments.
+Unlike basic RAG applications that rely only on vector search, this platform combines advanced retrieval, reranking, security, caching, observability, and role-based access control to improve answer quality and enterprise readiness.
 
-The system enables secure enterprise knowledge search across multiple departments while enforcing Role-Based Access Control (RBAC) and improving answer quality through modern retrieval strategies such as Hybrid Search, HyDE, Query Expansion, Parent-Child Retrieval, and Cross-Encoder Re-ranking.
+## Why This Project
+Traditional RAG systems face several challenges:
+* Relevant documents are often missed during retrieval
+* Retrieved documents may be ranked incorrectly
+* LLMs can generate hallucinated answers
+* Users may access information outside their permissions
+* Repeated questions increase latency and API costs
+* Limited visibility into system performance
 
----
+This project addresses these challenges using modern RAG v2 and enterprise retrieval techniques.
 
-# 🚀 Key Features
-
-### Enterprise Security
-
+## Key Features
 * Role-Based Access Control (RBAC)
-* Namespace-based document isolation
-* Sensitive data redaction
-* Department-level permissions
+* JWT Authentication
+* Qdrant Vector Database
+* Hybrid Retrieval (Dense + BM25)
+* HyDE Query Expansion
+* Multi-Query Retrieval
+* Metadata Filtering
+* Query Routing
+* AutoMerging Retrieval
+* Cross-Encoder Reranking
+* Semantic Response Caching
+* Prompt Injection Guardrails
+* Hallucination Detection
+* SSE Token Streaming
+* Structured Logging
+* Telemetry and Observability
+* RAGAS Evaluation
 
-### Advanced RAG v2 Retrieval
+## Architecture
+Document Ingestion
+Documents
+→ Metadata Extraction
+→ Deduplication
+→ Parent-Child Chunking
+→ Embedding Generation
+→ Qdrant Storage
 
-* Hybrid Search (Dense + BM25)
-* HyDE Query Enrichment
-* Multi-Query Expansion
-* Parent-Child Chunking
-* Auto-Merging Retrieval
-* Cross-Encoder Re-ranking
-* Retrieval Diagnostics
-
-### Production Capabilities
-
-* ChromaDB Persistent Vector Storage
-* Multi-Department Knowledge Base
-* Configurable LLM Provider
-* Evaluation using RAGAS
-* Scalable Ingestion Pipeline
-
----
-
-# 🎯 Problem Statement
-
-Traditional RAG systems often suffer from:
-
-* Poor retrieval quality
-* Missing relevant documents
-* Context fragmentation
-* Hallucinated responses
-* Weak keyword matching
-
-This project upgrades a standard RAG implementation into an enterprise-grade RAG v2 architecture that significantly improves retrieval precision and answer grounding.
-
----
-
-# 🏗️ System Architecture
-
-```text
+Query Pipeline
 User Query
-     │
-     ▼
-RBAC Authorization
-     │
-     ▼
-HyDE Query Generation
-     │
-     ▼
-Multi Query Expansion
-     │
-     ▼
-Hybrid Retrieval
-(BM25 + Vector Search)
-     │
-     ▼
-Parent-Child AutoMerging
-     │
-     ▼
-Cross Encoder Re-ranking
-     │
-     ▼
-Context Compression
-     │
-     ▼
-GPT-4o Mini
-     │
-     ▼
-Answer + Sources
-```
-
----
-
-# 📂 Project Structure
-
-```text
-rag_llamaindex_v2/
-
-├── app/
-│
-├── auth/
-│   ├── users.py
-│   └── rbac.py
-│
-├── db/
-│   └── vectorstore.py
-│
-├── ingestion/
-│   ├── loader.py
-│   └── metadata.py
-│
-├── rag/
-│   ├── embeddings.py
-│   ├── hyde.py
-│   ├── retriever.py
-│   ├── reranker.py
-│   └── pipeline.py
-│
-├── scripts/
-│   └── ingest.py
-│
-├── templates/
-│   ├── login.html
-│   └── chat.html
-│
-├── eval/
-│   └── evaluate.py
-│
-├── data/
-│
-├── requirements.txt
-├── main.py
-└── .env
-```
-## 📸 Project Screenshots
-
-### Login & Authentication
-
-![Login Page](rag_v2_1.png)
-
-### Enterprise Chat Interface
-
-![Chat Interface](rag_v2_2.png)
-
-### Retrieval Diagnostics
-
-![Retrieval Diagnostics](rag_v2_3.png)
-
----
-
-# 🔥 RAG v1 vs RAG v2
-
-| Component         | RAG v1           | RAG v2                           |
-| ----------------- | ---------------- | -------------------------------- |
-| Chunking          | Flat Chunks      | Parent-Child Hierarchical Chunks |
-| Search            | Vector Search    | Hybrid Search                    |
-| Query Processing  | Raw Query        | HyDE + Query Expansion           |
-| Context Retrieval | Leaf Chunks Only | AutoMerging Parent Context       |
-| Ranking           | Similarity Score | Cross Encoder                    |
-| Security          | None             | RBAC + Redaction                 |
-| Evaluation        | Manual           | RAGAS                            |
-
----
-
-# ⚙️ RAG v2 Techniques Explained
-
-## 1. Parent-Child Chunking
-
-### Why?
-
-Large documents lose context when split into small chunks.
-
-### Solution
-
-Create:
-
-Parent Nodes → 1024 Tokens
-
-Child Nodes → 256 Tokens
-
-Store both.
-
-Index only child nodes.
-
-When a child is retrieved, its parent context is also retrieved.
-
-### Benefits
-
-* Better context preservation
-* Higher retrieval accuracy
-* Reduced hallucinations
-
----
-
-## 2. Hybrid Retrieval
-
-### Problem
-
-Vector Search:
-
-Good for semantics.
-
-Bad for exact keywords.
-
-BM25:
-
-Good for keywords.
-
-Bad for semantic meaning.
-
-### Solution
-
-Combine both retrieval methods.
-
-```python
-Hybrid Score =
-Dense Similarity
-+
-BM25 Similarity
-```
-
-### Benefits
-
-* Better recall
-* Better precision
-* Improved retrieval coverage
-
----
-
-## 3. HyDE Retrieval
-
-### Full Form
-
-Hypothetical Document Embeddings
-
-### Example
-
-User Query:
-
-```text
-What benefits are available for employees?
-```
-
-GPT generates:
-
-```text
-Employees receive health insurance,
-paid leave, retirement plans,
-and performance bonuses.
-```
-
-Embedding is created from the generated answer instead of the original query.
-
-### Benefits
-
-* Better semantic retrieval
-* Improved matching
-* Higher recall
-
----
-
-## 4. Multi Query Expansion
-
-Instead of one query:
-
-```text
-How does leave policy work?
-```
-
-Generate:
-
-```text
-Explain employee leave policy
-
-Paid leave rules
-
-Leave management guidelines
-```
-
-Retrieve documents for all queries.
-
-### Benefits
-
-* Increased search coverage
-* Reduced missed documents
-
----
-
-## 5. AutoMerging Retriever
-
-After retrieval:
-
-```text
-Child A
-Child B
-Child C
-```
-
-If enough children belong to the same parent:
-
-```text
-Replace with Parent Node
-```
-
-### Benefits
-
-* Larger context windows
-* Better answer generation
-
----
-
-## 6. Cross Encoder Re-ranking
-
-Retriever returns:
-
-```text
-Top 20 Chunks
-```
-
-Cross Encoder evaluates:
-
-```text
-(Query, Chunk)
-```
-
-Pairs together.
-
-Example:
-
-```text
-Chunk A = 0.95
-
-Chunk B = 0.48
-```
-
-Keep only the highest-quality chunks.
-
-### Benefits
-
-* Better ranking
-* More relevant context
-
----
-
-## 7. Context Compression
-
-Removes irrelevant information before sending context to the LLM.
-
-### Benefits
-
-* Lower token usage
-* Faster response generation
-* Better grounding
-
----
-
-# 🔄 End-to-End Flow
-
-## Document Ingestion
-
-```text
-Upload Documents
-       │
-       ▼
-Metadata Tagging
-       │
-       ▼
-Parent Chunk Creation
-       │
-       ▼
-Child Chunk Creation
-       │
-       ▼
-Embedding Generation
-       │
-       ▼
-Store in ChromaDB
-```
-
----
-
-## User Query
-
-```text
-Question
-    │
-    ▼
-RBAC Check
-    │
-    ▼
-HyDE Generation
-    │
-    ▼
-Query Expansion
-    │
-    ▼
-Hybrid Search
-    │
-    ▼
-AutoMerging
-    │
-    ▼
-Re-ranking
-    │
-    ▼
-LLM Generation
-    │
-    ▼
-Response
-```
-
----
-
-# 📊 Evaluation
-
-Evaluation performed using RAGAS.
-
-Metrics:
-
-* Faithfulness
-* Context Precision
-* Context Recall
-* Answer Relevancy
-
-```bash
-python eval/evaluate.py
-```
-
----
-
-# 🛠️ Tech Stack
-
+→ Guardrails
+→ Semantic Cache
+→ HyDE
+→ Query Expansion
+→ Metadata Filtering
+→ Query Routing
+→ Hybrid Retrieval
+→ AutoMerging
+→ Reranking
+→ LLM Generation
+→ Post-Processing
+→ Final Response
+
+## Advanced Retrieval Techniques
+
+### Hybrid Retrieval
+Combines vector search and BM25 keyword search to improve retrieval accuracy.
+
+### HyDE
+Generates a hypothetical answer before retrieval, improving semantic search quality.
+
+### Multi-Query Expansion
+Creates multiple query variations to increase recall.
+
+### Metadata Filtering
+Extracts structured filters such as department, namespace, author, or date from user queries.
+
+### AutoMerging Retrieval
+Retrieves precise child chunks and expands them into larger parent contexts.
+
+### Cross-Encoder Reranking
+Reranks retrieved documents based on true query-document relevance.
+
+## Security
+* Role-based access control
+* Namespace isolation
+* JWT authentication
+* Prompt injection protection
+* Jailbreak detection
+* PII detection
+* Output moderation
+
+## Tech Stack
 Backend
-
-* Flask
 * Python
-
-Retrieval
-
+* Flask
 * LlamaIndex
-* ChromaDB
+Retrieval
+* Qdrant
 * BM25
-
-Embeddings
-
 * Sentence Transformers
-* BGE Models
-
-Re-ranking
-
-* Cross Encoder
-* MS MARCO MiniLM
-
+* Cross Encoder Reranker
 LLM
-
-* GPT-4o Mini
-* OpenAI
-
+* OpenAI GPT-4o-mini
 Evaluation
 
 * RAGAS
+Monitoring
+* Structured JSON Logging
+* Telemetry Metrics
 
----
+## Project Structure
 
-# 🚀 Installation
+app/
+├── auth/
+├── db/
+├── ingestion/
+├── rag/
+├── services/
+├── utils/
 
-### Create Environment
+evaluation/
+scripts/
+templates/
+data/
+db/
 
+## Installation
+
+Clone the repository
+```bash
+git clone <repository-url>
+cd enterprise-rag-platform
+```
+Create a virtual environment
 ```bash
 python -m venv .venv
 ```
-
-### Activate
-
+Activate environment
 ```bash
 source .venv/bin/activate
 ```
-
-Windows
-
-```bash
-.venv\Scripts\activate
-```
-
-### Install Dependencies
-
+Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
-
-### Configure Environment
-
-```bash
-cp .env.example .env
-```
-
-Add:
-
+Configure environment variables
 ```env
 OPENAI_API_KEY=your_key
 ```
-
-### Ingest Documents
-
+Run ingestion
 ```bash
 python scripts/ingest.py
 ```
-
-### Start Application
-
+Start the application
 ```bash
 python main.py
 ```
-
-Open:
-
+Open
 ```text
 http://localhost:5000
 ```
+## Results
+* Higher retrieval accuracy through hybrid search and reranking
+* Reduced hallucinations using grounded retrieval
+* Faster responses through semantic caching
+* Secure department-level document access
+* Production-ready monitoring and logging
 
----
+## Future Improvements
+* Agentic Retrieval
+* Knowledge Graph Integration
+* Distributed Qdrant Deployment
+* Kubernetes Deployment
+* AWS Production Infrastructure
+* Continuous Evaluation Pipeline
 
-# 📈 Production Benefits
+## Conclusion
 
-* Higher retrieval accuracy
-* Better context understanding
-* Reduced hallucinations
-* Enterprise-grade access control
-* Lower token consumption
-* Improved answer relevance
-* Scalable architecture
-
----
-
-# Future Improvements
-
-* Agentic RAG
-* Knowledge Graph Retrieval
-* GraphRAG
-* Semantic Caching
-* Multi-Vector Retrieval
-* AWS Deployment
-* Kubernetes Scaling
-* Monitoring with LangSmith
-
----
-## ⚠ Disclaimer
-
-This project is intended for educational and research purposes.
-
-Generated code should be reviewed, tested, and validated before production deployment.
-
----
-
-## 👨‍💻 Developer
-
-**Darshan Kamate**
-
-📧 Email: [kamatedarshan5@gmail.com](mailto:kamatedarshan5@gmail.com)
-
-📱 Phone: +91 9353675710
-
-LinkedIn: https://www.linkedin.com/in/darshankamate
-
----
-
-### ⭐ If you find this project useful, consider giving it a star.
+This project demonstrates how modern enterprise RAG systems can move beyond simple vector search by combining retrieval optimization, security, observability, and evaluation into a production-ready architecture.
