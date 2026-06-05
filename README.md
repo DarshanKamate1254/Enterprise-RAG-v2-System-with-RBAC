@@ -42,6 +42,8 @@ Documents
 → Embedding Generation
 → Qdrant Storage
 
+![Architecture](architecture.png)
+
 Query Pipeline
 User Query
 → Guardrails
@@ -121,6 +123,10 @@ templates/
 data/
 db/
 
+## Result
+![UI](rag_v2_1.png)
+![Result](rag_v2_2.png)
+![Result](rag_v2_3.png)
 ## Installation
 
 Clone the repository
